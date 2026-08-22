@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Portal Google Apps Script</title>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* --- SIDEBAR --- */
+    aside {
+      width: 260px;
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 32px;
+    }
+
+    .brand i {
+      font-size: 1.5rem;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-item {
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background-color: #eff6ff;
+      color: var(--primary-color);
+    }
+
+    /* --- MAIN CONTENT --- */
+    main {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .header-title h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* --- SEARCH BAR --- */
+    .search-box {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.95rem;
+      background-color: var(--card-bg);
+      transition: border-color 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* --- GRID APPS --- */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .app-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .app-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-top {
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .app-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background-color: #eff6ff;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background-color: #f1f5f9;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .app-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .app-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .btn-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-open:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px dashed var(--border-color);
+    }
+
+    /* --- RESPONSIVE DESIGN --- */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      aside {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 16px;
+      }
+
+      .brand {
+        margin-bottom: 16px;
+      }
+
+      .sidebar-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+
+      .menu-item {
+        white-space: nowrap;
+      }
+
+      main {
+        padding: 20px 16px;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="brand">
+      <i class="fa-solid fa-cubes"></i>
+      <span>Portal GAS</span>
+    </div>
+    <ul class="sidebar-menu" id="categoryMenu">
+      <li class="menu-item active" onclick="filterCategory('all', this)">
+        <i class="fa-solid fa-border-all"></i> Semua Aplikasi
+      </li>
+      <!-- Kategori dinamis akan ditambahkan lewat JavaScript -->
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <header>
+      <div class="header-title">
+        <h1>Dashboard Aplikasi</h1>
+        <p>Akses cepat seluruh layanan Google Apps Script internal.</p>
+      </div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Cari nama atau deskripsi..." oninput="handleSearch()">
+      </div>
+    </header>
+
+    <!-- GRID KARTU APLIKASI -->
+    <div class="apps-grid" id="appsGrid">
+      <!-- Kartu aplikasi dimasukkan secara dinamis lewat JS -->
+    </div>
+  </main>
+
+  <script>
+    // ==========================================
+    // 1. DATA APLIKASI GOOGLE APPS SCRIPT (JSON)
+    // Silakan tambah, ubah, atau hapus data di bawah ini.
+    // ==========================================
+const appsData = [
+  {
+    id: 1,
+    title: "Sistem Pendataan Warga",
+    description: "Deskripsi singkat mengenai fungsi aplikasi.",
+    url: "https://script.google.com/macros/s/AKfycbzye_7mq8FVSB-363eYxQAobwcyHQei8XIKes59_5eeHZ-1LJfBo5-jyMSoliWFC49D/exec",
+    category: "Data Warga",
+    icon: "fa-user-check" // Nama ikon dari FontAwesome
+  },
+  // ...
+];
+  
+    let currentCategory = 'all';
+
+    // ==========================================
+    // 2. FUNGSI UNTUK MENAMPILKAN KARTU APLIKASI
+    // ==========================================
+    function renderApps(apps) {
+      const grid = document.getElementById('appsGrid');
+      grid.innerHTML = '';
+
+      if (apps.length === 0) {
+        grid.innerHTML = `
+          <div class="no-results">
+            <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 8px;"></i>
+            <p>Tidak ada aplikasi yang ditemukan.</p>
+          </div>
+        `;
+        return;
+      }
+
+      apps.forEach(app => {
+        const card = document.createElement('div');
+        card.className = 'app-card';
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-header">
+              <div class="app-icon">
+                <i class="fa-solid ${app.icon || 'fa-link'}"></i>
+              </div>
+              <span class="tag">${app.category}</span>
+            </div>
+            <h3 class="app-title">${app.title}</h3>
+            <p class="app-desc">${app.description}</p>
+          </div>
+          <a href="${app.url}" target="_blank" rel="noopener noreferrer" class="btn-open">
+            Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+          </a>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // 3. FUNGSI UNTUK GENERATE KATEGORI DI SIDEBAR
+    // ==========================================
+    function renderCategories() {
+      const menu = document.getElementById('categoryMenu');
+      const categories = [...new Set(appsData.map(app => app.category))];
+
+      categories.forEach(cat => {
+        const li = document.createElement('li');
+        li.className = 'menu-item';
+        li.onclick = (e) => filterCategory(cat, li);
+        li.innerHTML = `<i class="fa-solid fa-folder"></i> ${cat}`;
+        menu.appendChild(li);
+      });
+    }
+
+    // ==========================================
+    // 4. FUNGSI FILTER & PENCARIAN
+    // ==========================================
+    function filterCategory(category, element) {
+      currentCategory = category;
+      
+      // Update status aktif pada menu sidebar
+      const items = document.querySelectorAll('.menu-item');
+      items.forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+
+      applyFilters();
+    }
+
+    function handleSearch() {
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+      const filtered = appsData.filter(app => {
+        const matchesCategory = currentCategory === 'all' || app.category === currentCategory;
+        const matchesSearch = app.title.toLowerCase().includes(searchTerm) || 
+                              app.description.toLowerCase().includes(searchTerm);
+
+        return matchesCategory && matchesSearch;
+      });
+
+      renderApps(filtered);
+    }
+
+    // Inisialisasi saat halaman selesai dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+      renderApps(appsData);
+    });
+  </script>
+</body>
+</html>
