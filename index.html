@@ -15,7 +15,8 @@
       --primary-color: #2563eb;
       --primary-hover: #1d4ed8;
       --bg-color: #f8fafc;
-      --card-bg: #ffffff;
+      /* Diberi sedikit transparansi (0.95) agar background gambar di belakang terlihat halus */
+      --card-bg: rgba(255, 255, 255, 0.95);
       --text-main: #0f172a;
       --text-muted: #64748b;
       --border-color: #e2e8f0;
@@ -32,7 +33,12 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background-color: var(--bg-color);
+      /* Ganti URL di bawah dengan link/path gambar Anda */
+      background-image: url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       color: var(--text-main);
       display: flex;
       min-height: 100vh;
@@ -42,6 +48,7 @@
     aside {
       width: 260px;
       background-color: var(--card-bg);
+      backdrop-filter: blur(8px); /* Efek blur transparan modern */
       border-right: 1px solid var(--border-color);
       padding: 24px 20px;
       display: flex;
@@ -139,6 +146,7 @@
       outline: none;
       font-size: 0.95rem;
       background-color: var(--card-bg);
+      backdrop-filter: blur(8px);
       transition: border-color 0.2s;
     }
 
@@ -156,6 +164,7 @@
 
     .app-card {
       background-color: var(--card-bg);
+      backdrop-filter: blur(8px);
       border: 1px solid var(--border-color);
       border-radius: var(--radius);
       padding: 20px;
@@ -298,7 +307,6 @@
       <li class="menu-item active" onclick="filterCategory('all', this)">
         <i class="fa-solid fa-border-all"></i> Semua Aplikasi
       </li>
-      <!-- Kategori dinamis akan ditambahkan lewat JavaScript -->
     </ul>
   </aside>
 
@@ -316,42 +324,31 @@
     </header>
 
     <!-- GRID KARTU APLIKASI -->
-    <div class="apps-grid" id="appsGrid">
-      <!-- Kartu aplikasi dimasukkan secara dinamis lewat JS -->
-    </div>
+    <div class="apps-grid" id="appsGrid"></div>
   </main>
 
   <script>
-    // ==========================================
-    // 1. DATA APLIKASI GOOGLE APPS SCRIPT (JSON)
-    // Silakan tambah, ubah, atau hapus data di bawah ini.
-    // ==========================================
-const appsData = [
-  {
-    id: 1,
-    title: "Halaman Admin",
-    description: "Halaman untuk mengubah, menambah data",
-    url: "https://script.google.com/macros/s/AKfycbwxVCrxseIQr4dJl5-ulDBQbVpGrHrBib8M2jFI6HRhyrgLuIUS7GFZRXIRwA3xeNmU/exec?page=admin",
-    category: "Admin",
-    icon: "fa-user-check" // Nama ikon dari FontAwesome
-  },
-    {
-    id: 1,
-    title: "Tampilan Laporan",
-    description: "Menampilkan laporan Transparansi",
-    url: "https://script.google.com/macros/s/AKfycbwxVCrxseIQr4dJl5-ulDBQbVpGrHrBib8M2jFI6HRhyrgLuIUS7GFZRXIRwA3xeNmU/exec",
-    category: "Iuaran Warga",
-    icon: "fa-user-check" // Nama ikon dari FontAwesome
-  },
+    const appsData = [
+      {
+        id: 1,
+        title: "Halaman Admin",
+        description: "Halaman untuk mengubah, menambah data",
+        url: "https://script.google.com/macros/s/AKfycbwxVCrxseIQr4dJl5-ulDBQbVpGrHrBib8M2jFI6HRhyrgLuIUS7GFZRXIRwA3xeNmU/exec?page=admin",
+        category: "Admin",
+        icon: "fa-user-check"
+      },
+      {
+        id: 2,
+        title: "Tampilan Laporan",
+        description: "Menampilkan laporan Transparansi",
+        url: "https://script.google.com/macros/s/AKfycbwxVCrxseIQr4dJl5-ulDBQbVpGrHrBib8M2jFI6HRhyrgLuIUS7GFZRXIRwA3xeNmU/exec",
+        category: "Iuran Warga",
+        icon: "fa-file-invoice-dollar"
+      }
+    ];
 
-  // ...
-];
-  
     let currentCategory = 'all';
 
-    // ==========================================
-    // 2. FUNGSI UNTUK MENAMPILKAN KARTU APLIKASI
-    // ==========================================
     function renderApps(apps) {
       const grid = document.getElementById('appsGrid');
       grid.innerHTML = '';
@@ -388,9 +385,6 @@ const appsData = [
       });
     }
 
-    // ==========================================
-    // 3. FUNGSI UNTUK GENERATE KATEGORI DI SIDEBAR
-    // ==========================================
     function renderCategories() {
       const menu = document.getElementById('categoryMenu');
       const categories = [...new Set(appsData.map(app => app.category))];
@@ -404,17 +398,11 @@ const appsData = [
       });
     }
 
-    // ==========================================
-    // 4. FUNGSI FILTER & PENCARIAN
-    // ==========================================
     function filterCategory(category, element) {
       currentCategory = category;
-      
-      // Update status aktif pada menu sidebar
       const items = document.querySelectorAll('.menu-item');
       items.forEach(item => item.classList.remove('active'));
       element.classList.add('active');
-
       applyFilters();
     }
 
@@ -424,19 +412,15 @@ const appsData = [
 
     function applyFilters() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
       const filtered = appsData.filter(app => {
         const matchesCategory = currentCategory === 'all' || app.category === currentCategory;
         const matchesSearch = app.title.toLowerCase().includes(searchTerm) || 
                               app.description.toLowerCase().includes(searchTerm);
-
         return matchesCategory && matchesSearch;
       });
-
       renderApps(filtered);
     }
 
-    // Inisialisasi saat halaman selesai dimuat
     document.addEventListener('DOMContentLoaded', () => {
       renderCategories();
       renderApps(appsData);
